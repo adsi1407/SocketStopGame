@@ -59,7 +59,7 @@ public class BeingGameFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 ((GameActivity)getActivity()).sendMessage("Begin");
-                ((GameActivity)getActivity()).callStopFormFragment(false);
+                ((GameActivity)getActivity()).callStopFormFragment();
             }
         });
     }

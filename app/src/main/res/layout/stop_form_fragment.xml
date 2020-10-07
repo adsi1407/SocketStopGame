@@ -111,7 +111,8 @@
                 android:id="@+id/btnNewRound"
                 android:text="Nueva Ronda"
                 android:background="@color/colorPrimary"
-                android:textColor="@android:color/white"/>
+                android:textColor="@android:color/white"
+                android:enabled="false"/>
 
             <Button
                 android:layout_width="0dp"
@@ -121,7 +122,8 @@
                 android:id="@+id/btnFinish"
                 android:text="Terminar"
                 android:background="@color/colorAccent"
-                android:textColor="@android:color/white"/>
+                android:textColor="@android:color/white"
+                android:enabled="false"/>
         </LinearLayout>
 
     </LinearLayout>

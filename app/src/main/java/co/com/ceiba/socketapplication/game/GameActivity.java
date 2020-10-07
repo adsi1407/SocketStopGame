@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import co.com.ceiba.socketapplication.NetworkManager;
 import co.com.ceiba.socketapplication.R;
@@ -24,11 +26,14 @@ public class GameActivity extends AppCompatActivity {
     private NetworkManager networkManager;
     private String localIpAddress = "";
     private String clientIpAddress = "";
+    private List<Round> rounds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_activity);
+
+        rounds = new ArrayList<>();
 
         Thread messageThread = new Thread(new MySocketServer(this));
         messageThread.start();
@@ -61,9 +66,9 @@ public class GameActivity extends AppCompatActivity {
                 .commitNow();
     }
 
-    public void callStopFormFragment(boolean fromClient) {
+    public void callStopFormFragment() {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, StopFormFragment.newInstance(localIpAddress, clientIpAddress, fromClient))
+                .replace(R.id.container, StopFormFragment.newInstance(localIpAddress, clientIpAddress))
                 .commitNow();
     }
 
@@ -75,6 +80,42 @@ public class GameActivity extends AppCompatActivity {
         SendMessageRunnable sendMessageRunnable = new SendMessageRunnable(clientIpAddress, message);
         Thread thread = new Thread(sendMessageRunnable);
         thread.start();;
+    }
+
+    public void addRound(Round round) {
+        rounds.add(round);
+    }
+
+    public int calculateRoundValue(Round round) {
+        int result = 0;
+
+        if (round.getName() != null && !round.getName().equals("")) {
+            result = result + 100;
+        }
+
+        if (round.getLastName() != null && !round.getLastName().equals("")) {
+            result = result + 100;
+        }
+
+        if (round.getCity() != null && !round.getCity().equals("")) {
+            result = result + 100;
+        }
+
+        if (round.getAnimal() != null && !round.getAnimal().equals("")) {
+            result = result + 100;
+        }
+
+        return result;
+    }
+
+    public int calculateTotalValue() {
+        int result = 0;
+
+        for (int i = 0; i < rounds.size(); i++){
+            result = result + calculateRoundValue(rounds.get(i));
+        }
+
+        return result;
     }
 
     class SendMessageRunnable implements Runnable {
@@ -108,7 +149,8 @@ public class GameActivity extends AppCompatActivity {
         Socket socket;
         DataInputStream dataInputStream;
         String message;
-        Handler handler = new Handler();
+        Handler connectHandler = new Handler();
+        Handler beginHandler = new Handler();
 
         public MySocketServer(Context context) {
             this.context = context;
@@ -126,7 +168,7 @@ public class GameActivity extends AppCompatActivity {
                     message = dataInputStream.readUTF();
 
                     if (message.equals("Connect")) {
-                        handler.post(new Runnable() {
+                        connectHandler.post(new Runnable() {
                             @Override
                             public void run() {
                                 clientIpAddress = socket.getInetAddress().getHostAddress();
@@ -135,10 +177,10 @@ public class GameActivity extends AppCompatActivity {
                         });
                     }
                     else if(message.equals("Begin")) {
-                        handler.post(new Runnable() {
+                        beginHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                callStopFormFragment(true);
+                                callStopFormFragment();
                             }
                         });
                     }
